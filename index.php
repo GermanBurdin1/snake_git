@@ -1,48 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Snake</title>
-    <style>
-        canvas{
-            border: 2px solid;
-        }
-    </style>
-</head>
-<body>
+<?php
+session_start();
 
-<canvas width="400" height="400"></canvas>
-    
-<script>
-    // Écouteur d'événement pour le bouton "Lancer le Dé"
-document.getElementById("rollDice").addEventListener("click", function() {
-    fetch("game.php") // Appel AJAX pour exécuter la logique PHP
-        .then(response => response.json())
-        .then(data => {
-            // Vérifier si un joueur a gagné
-            if (data.winner) {
-                document.getElementById("turn").innerText = 🎉 ${data.winner} a gagné ! 🎉;
-                document.getElementById("rollDice").disabled = true; // Désactiver le bouton après la victoire
-                return;
-            }
-
-            // Mise à jour des informations du jeu
-            document.getElementById("turn").innerText = Tour de ${data.current_player};
-            document.getElementById("diceResult").innerText = Dé: ${data.dice};
-
-            // Mise à jour de la position des joueurs
-            updatePlayerPosition("player1", data.players["Joueur 1"]);
-            updatePlayerPosition("player2", data.players["Joueur 2"]);
-        });
-});
-
-// Fonction pour déplacer un joueur sur le plateau
-function updatePlayerPosition(playerId, position) {
-    let player = document.getElementById(playerId);
-    let newX = (position - 1) * 10; // Conversion de la position en pixels
-    player.style.transform = translateX(${newX}px);
+// Initialisation des joueurs si la session n'existe pas encore
+if (!isset($_SESSION['players'])) {
+    $_SESSION['players'] = [
+        "Joueur 1" => 1,
+        "Joueur 2" => 1
+    ];
+    $_SESSION['current_player'] = "Joueur 1";
 }
-</script>
-</body>
-</html>
+
+// Lancer le dé (nombre aléatoire entre 1 et 6)
+$dice = rand(1, 6);
+$_SESSION['players'][$_SESSION['current_player']] += $dice;
+
+// Règle spéciale : si un joueur dépasse 50, il revient à la case 25
+if ($_SESSION['players'][$_SESSION['current_player']] > 50) {
+    $_SESSION['players'][$_SESSION['current_player']] = 25;
+}
+
+// Vérification de la victoire
+if ($_SESSION['players'][$_SESSION['current_player']] == 50) {
+    $winner = $_SESSION['current_player'];
+    session_destroy(); // Réinitialisation du jeu après victoire
+    echo json_encode(["winner" => $winner]);
+    exit;
+}
+
+// Passer au joueur suivant
+$_SESSION['current_player'] = ($_SESSION['current_player'] == "Joueur 1") ? "Joueur 2" : "Joueur 1";
+
+// Retourner les données au frontend
+echo json_encode([
+    "players" => $_SESSION['players'],
+    "current_player" => $_SESSION['current_player'],
+    "dice" => $dice
+]);
+?>
+
