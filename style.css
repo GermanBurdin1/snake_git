@@ -1,0 +1,31 @@
+/* Style global */
+body {
+	text-align: center;
+	font-family: Arial, sans-serif;
+}
+
+/* Plateau de jeu */
+#board {
+	position: relative;
+	width: 500px;
+	height: 50px;
+	margin: 20px auto;
+	border: 2px solid black;
+}
+
+/* Style des joueurs */
+.player {
+	position: absolute;
+	width: 40px;
+	height: 40px;
+	background-color: red;
+	border-radius: 50%;
+	text-align: center;
+	line-height: 40px;
+	color: white;
+	font-weight: bold;
+}
+
+#player2 {
+	background-color: blue;
+}
