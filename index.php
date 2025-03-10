@@ -36,3 +36,5 @@ echo json_encode([
     "current_player" => $_SESSION['current_player'],
     "dice" => $dice
 ]);
+?>
+
